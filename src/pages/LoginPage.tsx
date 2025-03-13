@@ -1,17 +1,29 @@
 import {themeStyles} from "../services/theme.ts";
 import {Box, Button, Typography} from "@mui/material";
-import {signWithGoogle} from "../services/firebase.ts";
+import {loginWithGoogle} from "../redux/authThunks.ts";
+import {RootState, useAppDispatch} from "../redux/store.ts";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
+import { useEffect } from "react";
+
 
 
 const LoginPage = () => {
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const status =  useSelector((state: RootState) => state.auth.status);
     const handleLogin = async () => {
-        const user = await signWithGoogle();
-        if(user){
-            console.log("Success", user);
-        } else {
-            console.log("Error")
+        const result = await dispatch(loginWithGoogle());
+        if(loginWithGoogle.fulfilled.match(result)){
+            navigate("/");
         }
-    }
+    };
+    useEffect(() => {
+        if(user){
+            navigate("/")
+        }
+    }, [user, navigate]);
     return (
         <Box sx={themeStyles.pageContainer}>
             <Typography
@@ -23,8 +35,8 @@ const LoginPage = () => {
             <Button
                 variant="contained"
                 sx={themeStyles.button}
-            onClick={handleLogin}>
-                Auth with Google
+            onClick={handleLogin} disabled={status === "loading"}>
+                {status === "loading" ? "Loading" : "Auth with Google"}
             </Button>
         </Box>
     );
