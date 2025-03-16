@@ -1,13 +1,24 @@
-import {Box, Button, Typography} from "@mui/material";
-import UserInfo from "../components/UserInfo.tsx";
-import {themeStyles} from "../services/theme.ts";
-import {logOut} from "../services/firebase.ts";
-
+import { Box, Button, Typography } from "@mui/material";
+import { themeStyles } from "../services/theme";
+import { useAppDispatch } from "../redux/store";
+import { logoutUserAsync } from "../redux/authThunks";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import UserInfo from "../components/UserInfo";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const WelcomePage = () => {
+    const dispatch = useAppDispatch();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!user) {
+            navigate("/login");
+        }
+    }, [user, navigate]);
     const handleLogout = async () => {
-        await logOut();
-        console.log("LogOut success");
+        dispatch(logoutUserAsync());
     };
     return (
         <Box sx={themeStyles.pageContainer}>
