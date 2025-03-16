@@ -4,19 +4,21 @@ import {loginWithGoogle} from "../redux/authThunks.ts";
 import {RootState, useAppDispatch} from "../redux/store.ts";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
-import { useEffect } from "react";
-
-
+import { useEffect, useState } from "react";
 
 const LoginPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
     const status =  useSelector((state: RootState) => state.auth.status);
+    const [error, setError] = useState<string | null>(null);
     const handleLogin = async () => {
+        setError(null);
         const result = await dispatch(loginWithGoogle());
-        if(loginWithGoogle.fulfilled.match(result)){
+        if (loginWithGoogle.fulfilled.match(result)) {
             navigate("/");
+        } else if (loginWithGoogle.rejected.match(result)) {
+            setError(result.payload as string);
         }
     };
     useEffect(() => {
@@ -32,6 +34,9 @@ const LoginPage = () => {
             >
                 Enter
             </Typography>
+            {error && (
+                <Typography color="error">{error}</Typography>
+            )}
             <Button
                 variant="contained"
                 sx={themeStyles.button}
